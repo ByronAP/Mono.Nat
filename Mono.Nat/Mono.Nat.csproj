@@ -1,11 +1,10 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project>
 
 	<Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
 
 	<PropertyGroup>
-		<GitThisAssembly>false</GitThisAssembly>
-		<TargetFrameworks>net6.0;netstandard2.1;netstandard2.0</TargetFrameworks>
+		<TargetFrameworks>net7.0</TargetFrameworks>
 
 		<MonoNatABIVersion>3.0.0.0</MonoNatABIVersion>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>

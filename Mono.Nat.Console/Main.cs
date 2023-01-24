@@ -11,10 +11,10 @@
 // distribute, sublicense, and/or sell copies of the Software, and to
 // permit persons to whom the Software is furnished to do so, subject to
 // the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be
 // included in all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 // EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -26,12 +26,13 @@
 
 using System;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Mono.Nat.Test
 {
-    class NatTest
+    internal class NatTest
     {
-        public NatTest ()
+        public async Task NatTestAsync ()
         {
             // Raised whenever a device is discovered.
             NatUtility.DeviceFound += DeviceFound;
@@ -44,22 +45,22 @@ namespace Mono.Nat.Test
             Console.WriteLine ("Discovery started");
 
             while (true) {
-                Thread.Sleep (500000);
+                await Task.Delay (500000);
                 NatUtility.StopDiscovery ();
                 NatUtility.StartDiscovery ();
             }
         }
 
-        public static void Main (string[] args)
+        public static async Task Main (string[] args)
         {
-            new NatTest ();
+            var nt = new NatTest ();
+            await nt.NatTestAsync ();
         }
 
-        readonly SemaphoreSlim locker = new SemaphoreSlim (1, 1);
+        private readonly SemaphoreSlim locker = new SemaphoreSlim (1, 1);
 
         private async void DeviceFound (object sender, DeviceEventArgs args)
         {
-
             await locker.WaitAsync ();
             try {
                 INatDevice device = args.Device;
@@ -72,7 +73,7 @@ namespace Mono.Nat.Test
                 Console.ResetColor ();
                 Console.WriteLine ("Type: {0}", device.GetType ().Name);
 
-                Console.WriteLine ("IP: {0}", await device.GetExternalIPAsync ());
+                Console.WriteLine ("IP: {0}", device.DeviceEndpoint.Address.ToString ());
 
                 Console.WriteLine ("---");
 
@@ -84,9 +85,13 @@ namespace Mono.Nat.Test
 
                 // Try to create a new port map:
                 var mapping = new Mapping (Protocol.Tcp, 56001, 56011);
-                await device.CreatePortMapAsync (mapping);
-                Console.WriteLine ("Create Mapping: protocol={0}, public={1}, private={2}", mapping.Protocol, mapping.PublicPort,
-                                  mapping.PrivatePort);
+                try {
+                    await device.CreatePortMapAsync (mapping);
+                    Console.WriteLine ("Create Mapping: protocol={0}, public={1}, private={2}", mapping.Protocol, mapping.PublicPort,
+                                      mapping.PrivatePort);
+                } catch {
+                    Console.WriteLine ("Create mapping failed.");
+                }
 
                 // Try to retrieve confirmation on the port map we just created:
                 try {
@@ -125,7 +130,6 @@ namespace Mono.Nat.Test
                         Console.WriteLine ("Existing Mapping: protocol={0}, public={1}, private={2}", mp.Protocol, mp.PublicPort, mp.PrivatePort);
                 } catch {
                     Console.WriteLine ("Couldn't get all mappings");
-
                 }
 
                 Console.WriteLine ("External IP: {0}", await device.GetExternalIPAsync ());
