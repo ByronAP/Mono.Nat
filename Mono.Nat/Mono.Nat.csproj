@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project>
 
 	<Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
@@ -6,7 +6,7 @@
 	<PropertyGroup>
 		<TargetFrameworks>net7.0</TargetFrameworks>
 
-		<MonoNatABIVersion>3.0.0.0</MonoNatABIVersion>
+		<MonoNatABIVersion>9.9.0.0</MonoNatABIVersion>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 
 		<BeforePack>$(BeforePack);SetPackProperties</BeforePack>
@@ -18,40 +18,24 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="GitInfo" Version="2.0.20" PrivateAssets="all" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<Content Include="..\LICENSE.md" Pack="true" PackagePath="/" />
 	</ItemGroup>
 
 
 	<Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
 
-	<PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-		<CoreCompileDependsOn>SetBuildVersion;$(CoreCompileDependsOn)</CoreCompileDependsOn>
-	</PropertyGroup>
-
 	<PropertyGroup>
 	  <NoWarn>1701;1702;1591</NoWarn>
 	</PropertyGroup>
 
-	<Target Name="SetBuildVersion" DependsOnTargets="GitInfo">
 		<PropertyGroup>
-			<SourceRevisionId>$(GitSha)</SourceRevisionId>
-		</PropertyGroup>
-	</Target>
-
-	<Target Name="SetAssemblyVersion" BeforeTargets="GetAssemblyVersion" Condition="'$(RestoreSuccess)' == 'true' And '$(Configuration)' == 'Release' " DependsOnTargets="GitVersion">
-		<PropertyGroup>
-			<MonoNatFileVersion>3.0.4</MonoNatFileVersion>
+			<MonoNatFileVersion>9.9.0</MonoNatFileVersion>
 			<MonoNatInformationalVersion>$(MonoNatFileVersion)-$(GitBranch)+$(GitCommit)</MonoNatInformationalVersion>
 
 			<AssemblyVersion Condition="'$(AssemblyVersion)' == ''">$(MonoNatABIVersion)</AssemblyVersion>
 			<FileVersion Condition="'$(FileVersion)' == ''">$(MonoNatFileVersion)</FileVersion>
 			<InformationalVersion Condition="'$(InformationalVersion)' == ''">$(MonoNatInformationalVersion)</InformationalVersion>
 		</PropertyGroup>
-	</Target>
 
 	<!-- NuGet related properties. We need to run this as part of the 'PackDependsOn' dependencies
 			to ensure our GitInfo related properties have been calculated correctly. -->
